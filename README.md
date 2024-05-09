@@ -48,6 +48,8 @@ The time it takes for the products to travel thru the underground traject is ide
 I am considering to add different capacity Entrances f.e.
 
 T1 : Horizontal 10, Vertical 0
+
 T2 : Horizontal 20, Vertical 10
+
 T3 : Horizontal 40, Vertical 20
 

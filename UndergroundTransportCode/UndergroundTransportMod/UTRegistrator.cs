@@ -35,7 +35,7 @@ namespace UndergroundTransportMod
             UTPrototype bp =
                 new UTPrototype(
                     PrototypeIDs.LocalEntities.LooseUndergroundTransportID, ps, el, ec, lg);
-            bp.maxDistance = 50;
+            bp.maxDistance = 40;
             bp.maxHeightDifference = 20;
             bp.singleProduct = false;
             bp.transportType = UTPrototype.TransportType.Loose;
