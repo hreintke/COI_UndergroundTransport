@@ -1,0 +1,20 @@
+ManifestFileVersion: 0
+CRC: 3073938489
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 2a3c4a97603b8be5728c2ea0c0472c87
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 2612ac43db082a73502ee80f2eceb73f
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/UndergroundTransportMod/Icons/LooseIcon.png
+- Assets/UndergroundTransportMod/Icons/PipeIcon1.png
+- Assets/UndergroundTransportMod/Icons/PipeIcon.png
+- Assets/UndergroundTransportMod/Icons/FlatIcon.png
+Dependencies: []

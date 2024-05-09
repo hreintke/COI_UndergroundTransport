@@ -1,0 +1,37 @@
+ManifestFileVersion: 0
+CRC: 503362435
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: icons_7449
+      Dependencies: {}
+    Info_1:
+      Name: undergroundtransportmod_156b
+      Dependencies: {}
+    Info_2:
+      Name: flatentrance_a2f0
+      Dependencies: {}
+    Info_3:
+      Name: looseentrance_ab7f
+      Dependencies: {}
+    Info_4:
+      Name: pipeentrance_f23c
+      Dependencies: {}
+    Info_5:
+      Name: flatentrancemoved_87a4
+      Dependencies: {}
+    Info_6:
+      Name: flatentrancemoved2_7eba
+      Dependencies: {}
+    Info_7:
+      Name: flatentrance38_c329
+      Dependencies: {}
+    Info_8:
+      Name: looseentrance38_498a
+      Dependencies: {}
+    Info_9:
+      Name: pipeentrance38_bba8
+      Dependencies: {}
+    Info_10:
+      Name: icons_d4f9
+      Dependencies: {}
