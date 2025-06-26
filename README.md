@@ -2,7 +2,7 @@
 
 It adds entrances for Flat, Loose and Pipe underground trajectory.
 
-This mod is based on Captain Of Industry Update2
+This mod is based on/compatible with Captain Of Industry Update3
 
 
 ![UI](Underground.PNG)
@@ -18,7 +18,7 @@ Due to the limited Mod options (yet) in the game, once the mod is used in a game
 
 # Usage
 
-Research "Underground Transport", this is behing ConveyorT3 & PipeT3
+Research "Underground Transport", this is behing ConveyorT2
 
 When the research is unlocked, the three Entrances are available in the "Transports" toolbar.
 
@@ -35,21 +35,9 @@ The connection is valid when :
 
 - Entrances are of the same type
 
-- The horizontal distance is 40 or less
+- The horizontal distance is 50 or less
 
 - The vertical distance is 20 or less.
 
 The Underground Transport uses the speed of the in and outgoing ports.
 The time it takes for the products to travel thru the underground traject is identical to a Level 3 Conveyor/Pipe
-
-
-# Future
-
-I am considering to add different capacity Entrances f.e.
-
-T1 : Horizontal 10, Vertical 0
-
-T2 : Horizontal 20, Vertical 10
-
-T3 : Horizontal 40, Vertical 20
-
