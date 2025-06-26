@@ -18,8 +18,8 @@ namespace UndergroundTransportMod
     {
         public string Name => "UndergroundTransportMod";
 
-        public int Version => 2;
-        public static Version ModVersion = new Version(0, 0, 4);
+        public int Version => 30706;
+        public static Version ModVersion = new Version(1, 0, 1);
         public bool IsUiOnly => false;
 
         public Option<IConfig> ModConfig { get; }
@@ -30,7 +30,7 @@ namespace UndergroundTransportMod
 
         public void Initialize(DependencyResolver resolver, bool gameWasLoaded)
         {
-            LogWrite.Info("Initializing ");
+            LogWrite.Info($"Initializing Version = {Version}");
         }
 
         public void RegisterDependencies(DependencyResolverBuilder depBuilder, ProtosDb protosDb, bool gameWasLoaded)

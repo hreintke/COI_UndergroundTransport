@@ -20,7 +20,7 @@ namespace UndergroundTransportMod
             UnlockedProtosDb unlockedProtosDb
         )
         {
-            // This unlocks the custom entity at startup
+            // This unlocks the UndergroudTransport prototypes at startup
             // Only use during debugging
 //            unlockedProtosDb.Unlock(ImmutableArray.Create((IProto)protosDb.Get(PrototypeIDs.LocalEntities.LooseUndergroundTransportID).Value));
 //            unlockedProtosDb.Unlock(ImmutableArray.Create((IProto)protosDb.Get(PrototypeIDs.LocalEntities.FlatUndergroundTransportID).Value));

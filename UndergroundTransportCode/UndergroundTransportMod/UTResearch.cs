@@ -23,15 +23,13 @@ namespace UndergroundTransportMod
         public void RegisterData(ProtoRegistrator registrator)
         {
             registrator.ResearchNodeProtoBuilder
-                .Start("UndergroundTransport", PrototypeIDs.Research.UnlockUndergroundTransport)
+                .Start("UndergroundTransport", PrototypeIDs.Research.UnlockUndergroundTransport, 60, "UndergroundTransport")
                 .Description("Underground Transport")
                 .AddLayoutEntityToUnlock(PrototypeIDs.LocalEntities.FlatUndergroundTransportID)
                 .AddLayoutEntityToUnlock(PrototypeIDs.LocalEntities.LooseUndergroundTransportID)
                 .AddLayoutEntityToUnlock(PrototypeIDs.LocalEntities.PipeUndergroundTransportID)
-                .SetGridPosition(registrator.PrototypesDb.GetOrThrow<ResearchNodeProto>(Ids.Research.ConveyorBeltsT3).GridPosition + new Vector2i(4, 0))
-                .SetCosts(new ResearchCostsTpl(5))
-                .AddParents(registrator.PrototypesDb.GetOrThrow<ResearchNodeProto>(Ids.Research.PipeTransportsT3),
-                            registrator.PrototypesDb.GetOrThrow<ResearchNodeProto>(Ids.Research.ConveyorBeltsT3))
+                .SetGridPosition(registrator.PrototypesDb.GetOrThrow<ResearchNodeProto>(Ids.Research.ConveyorBeltsT2).GridPosition + new Vector2i(12, 0))
+                .AddParents( registrator.PrototypesDb.GetOrThrow<ResearchNodeProto>(Ids.Research.ConveyorBeltsT2))
                 .BuildAndAdd();
         }
     }

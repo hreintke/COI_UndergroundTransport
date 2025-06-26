@@ -191,8 +191,12 @@ namespace UndergroundTransportMod
             string c = isConnected ? "Connected" : "Not Connected";
             string buf = $" pb {productBuffer.Count} {currentInuse} dir {currentDirection}";
             String cap = $" cap = {transportLength} {transportCapacity} {transportDuration}";
-            
-            return Transform.Position.ToString() + " " + Transform.Rotation.ToString() + " " + c + buf + cap + " " + CurrentState.ToString();
+            string cp = connectedUndergroundTransport.HasValue ? connectedUndergroundTransport.Value.Transform.Position.ToString() : " nc ";
+
+
+
+          
+            return Transform.Position.ToString() + " " + Transform.Rotation.ToString() + " " + c + buf + cap + " " + CurrentState.ToString() + " "+ cp;
         }
 
         public Direction currentDirection = Direction.None;
@@ -284,6 +288,7 @@ namespace UndergroundTransportMod
 
         protected override void OnPortConnectionChanged(IoPort ourPort)
         {
+            // ourPort.GetMaxThroughputPerTick
             base.OnPortConnectionChanged(ourPort);
             if (!ourPort.IsConnected)
             {

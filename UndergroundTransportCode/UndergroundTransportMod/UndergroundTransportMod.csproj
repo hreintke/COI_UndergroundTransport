@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>UndergroundTransportMod</RootNamespace>
     <AssemblyName>UndergroundTransportMod</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
@@ -68,6 +68,7 @@
     <Reference Include="UnityEngine.InputLegacyModule">
       <HintPath>..\..\..\..\..\..\..\Utilities\Steam\steamapps\common\Captain of Industry\Captain of Industry_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.UIElementsModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Logging\Logging.cs" />
@@ -75,13 +76,13 @@
     <Compile Include="UndergroundTransportMod.cs" />
     <Compile Include="UTActions.cs" />
     <Compile Include="UTDefintion.cs" />
-    <Compile Include="Utils\Utils.cs" />
     <Compile Include="UTInspector.cs" />
-    <Compile Include="UTInspectorAbstract.cs" />
     <Compile Include="UTPrototype.cs" />
     <Compile Include="UTRegistrator.cs" />
     <Compile Include="UTResearch.cs" />
-    <Compile Include="UTWindowView.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Utils\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

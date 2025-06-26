@@ -14,34 +14,6 @@ namespace UndergroundTransportMod
 {
     public class UTRegistrator : IModData
     {
-        public void RegisterDataOld(ProtoRegistrator registrator)
-        {
-            Proto.Str ps = Proto.CreateStr(PrototypeIDs.LocalEntities.LooseUndergroundTransportID, "Loose Underground Entry", "A building to start/end an underground Transport");
-
-            EntityLayout el = registrator.LayoutParser.ParseLayoutOrThrow(
-                "   [1][1]A~+"
-                );
-
-            EntityCostsTpl ecTpl = new EntityCostsTpl.Builder().CP3(100);
-            EntityCosts ec = ecTpl.MapToEntityCosts(registrator);
-
-            LayoutEntityProto.Gfx lg =
-                 new LayoutEntityProto.Gfx("Assets/Prefabs/LooseEntrance9.prefab",
-                customIconPath: "Assets/Icons/LooseEntrance2.png",
-
-                categories: new ImmutableArray<ToolbarCategoryProto>?(registrator.GetCategoriesProtos(Ids.ToolbarCategories.Landmarks)))
-                ;
-
-            UTPrototype bp =
-                new UTPrototype(
-                    PrototypeIDs.LocalEntities.LooseUndergroundTransportID, ps, el, ec, lg);
-            bp.maxDistance = 40;
-            bp.maxHeightDifference = 20;
-            bp.singleProduct = false;
-            bp.transportType = UTPrototype.TransportType.Loose;
-            registrator.PrototypesDb.Add(bp);
-        }
-
         public void RegisterData(ProtoRegistrator registrator)
         {
             LogWrite.Info("Registrating Undergound Entrances");
@@ -49,10 +21,10 @@ namespace UndergroundTransportMod
                 PrototypeIDs.LocalEntities.LooseUndergroundTransportID,
                 "Loose Underground Entry",
                 "A building to start/end a loose underground Transport",
-                "Assets/UndergroundTransportMod/Prefabs/LooseEntrance38.prefab",
+                "Assets/UndergroundTransportMod/Prefabs/LooseEntrance38Collider.prefab",
                 "Assets/UndergroundTransportMod/Icons/LooseIcon.png",
                 50,
-                20,
+                30,
                 new EntityCostsTpl.Builder().CP3(50),
                 UTPrototype.TransportType.Loose
                 );
@@ -61,10 +33,10 @@ namespace UndergroundTransportMod
                 PrototypeIDs.LocalEntities.FlatUndergroundTransportID,
                 "Flat Underground Entry",
                 "A building to start/end a flat underground Transport",
-                "Assets/UndergroundTransportMod/Prefabs/FlatEntrance38.prefab",
+                "Assets/UndergroundTransportMod/Prefabs/FlatEntrance38Collider.prefab",
                 "Assets/UndergroundTransportMod/Icons/FlatIcon.png",
                 50,
-                20,
+                30,
                 new EntityCostsTpl.Builder().CP3(50),
                 UTPrototype.TransportType.Unit
                 );
@@ -73,10 +45,10 @@ namespace UndergroundTransportMod
                 PrototypeIDs.LocalEntities.PipeUndergroundTransportID,
                 "Pipe Underground Entry",
                 "A building to start/end a pipe underground Transport",
-                "Assets/UndergroundTransportMod/Prefabs/PipeEntrance38.prefab",
+                "Assets/UndergroundTransportMod/Prefabs/PipeEntrance38Collider.prefab",
                 "Assets/UndergroundTransportMod/Icons/PipeIcon1.png",
                 50,
-                20,
+                30,
                 new EntityCostsTpl.Builder().CP3(50),
                 UTPrototype.TransportType.Fluid
                 );
@@ -124,7 +96,7 @@ namespace UndergroundTransportMod
             LayoutEntityProto.Gfx lg =
                 new LayoutEntityProto.Gfx(gfx, 
                     customIconPath: icon,
-                    categories: new ImmutableArray<ToolbarCategoryProto>?(registrator.GetCategoriesProtos(Ids.ToolbarCategories.Transports)));
+                    categories: new ImmutableArray<ToolbarEntryData>?(registrator.GetCategoriesProtos(Ids.ToolbarCategories.Transports)));
 
             Proto.Str ps = Proto.CreateStr(id, shortDescr, longDescr);
 

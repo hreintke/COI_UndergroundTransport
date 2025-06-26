@@ -1,16 +1,16 @@
 ManifestFileVersion: 0
 UnityVersion: 6000.0.50f1
-CRC: 54836026
+CRC: 1232833294
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 293ca357ce564a9a431e35b6a2ac9f9d
+    Hash: 49e6b860a5b8d0d06c4b0a34579aa0bd
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 3219c50854ff2a782d7e36576b5dbf5b
+    Hash: 83a4f80a9849befbea20413566db4b7e
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 67afc8fed81fd2a9dbb797a900ff2755
+    Hash: f56c991ed13621396ff53e6a2d679630
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -29,7 +29,9 @@ ClassTypes:
   Script: {instanceID: 0}
 - Class: 48
   Script: {instanceID: 0}
+- Class: 65
+  Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers: []
 Assets:
-- Assets/UndergroundTransportMod/Prefabs/PipeEntrance38.prefab
+- Assets/UndergroundTransportMod/Prefabs/PipeEntrance38Collider.prefab
 Dependencies: []
