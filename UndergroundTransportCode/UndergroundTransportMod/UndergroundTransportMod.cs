@@ -18,8 +18,8 @@ namespace UndergroundTransportMod
     {
         public string Name => "UndergroundTransportMod";
 
-        public int Version => 30706;
-        public static Version ModVersion = new Version(1, 0, 1);
+        public int Version => 103;
+        public static Version ModVersion = new Version(1, 0, 3);
         public bool IsUiOnly => false;
 
         public Option<IConfig> ModConfig { get; }
