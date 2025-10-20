@@ -23,7 +23,7 @@ namespace UndergroundTransportMod
                 "A building to start/end a loose underground Transport",
                 "Assets/UndergroundTransportMod/Prefabs/LooseEntrance38Collider.prefab",
                 "Assets/UndergroundTransportMod/Icons/LooseIcon.png",
-                100,
+                70,
                 30,
                 new EntityCostsTpl.Builder().CP3(50),
                 UTPrototype.TransportType.Loose
@@ -35,7 +35,7 @@ namespace UndergroundTransportMod
                 "A building to start/end a flat underground Transport",
                 "Assets/UndergroundTransportMod/Prefabs/FlatEntrance38Collider.prefab",
                 "Assets/UndergroundTransportMod/Icons/FlatIcon.png",
-                100,
+                70,
                 30,
                 new EntityCostsTpl.Builder().CP3(50),
                 UTPrototype.TransportType.Unit
@@ -47,7 +47,7 @@ namespace UndergroundTransportMod
                 "A building to start/end a pipe underground Transport",
                 "Assets/UndergroundTransportMod/Prefabs/PipeEntrance38Collider.prefab",
                 "Assets/UndergroundTransportMod/Icons/PipeIcon1.png",
-                100,
+                70,
                 30,
                 new EntityCostsTpl.Builder().CP3(50),
                 UTPrototype.TransportType.Fluid

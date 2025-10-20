@@ -35,9 +35,9 @@ The connection is valid when :
 
 - Entrances are of the same type
 
-- The horizontal distance is 50 or less
+- The horizontal distance is 70 or less
 
-- The vertical distance is 20 or less.
+- The vertical distance is 30 or less.
 
 The Underground Transport uses the speed of the in and outgoing ports.
 The time it takes for the products to travel thru the underground traject is identical to a Level 3 Conveyor/Pipe
