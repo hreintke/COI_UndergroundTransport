@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35913.81 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundTransport", "UndergroundTransport.csproj", "{FFD86AEA-D5B6-468E-94CE-BD506871AD7F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FFD86AEA-D5B6-468E-94CE-BD506871AD7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFD86AEA-D5B6-468E-94CE-BD506871AD7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFD86AEA-D5B6-468E-94CE-BD506871AD7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFD86AEA-D5B6-468E-94CE-BD506871AD7F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5BC22B18-C977-4BB9-8661-61C6ECC3D449}
+	EndGlobalSection
+EndGlobal
