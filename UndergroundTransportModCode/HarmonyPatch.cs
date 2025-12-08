@@ -6,6 +6,7 @@ using Mafi.Core;
 using Mafi.Core.Entities.Dynamic;
 using Mafi.Core.Entities.Static;
 using Mafi.Core.Factory.Transports;
+using Mafi.Core.GameLoop;
 using Mafi.Core.Map;
 using Mafi.Core.PathFinding;
 using Mafi.Core.PathFinding.Goals;
@@ -40,22 +41,37 @@ public class ModPatches
 {
 
     private readonly Harmony harmony;
-
     private static UTValidator utValidator;
-    ModPatches(UTValidator uv)
+    static private GameLoopEvents gameLoopEvents;
+    ModPatches(UTValidator uv, GameLoopEvents gle)
     {
-        harmony = new Harmony("myPatch");
+        harmony = new Harmony("UndergroundTransport");
+
+        if (Harmony.HasAnyPatches("UndergroundTransport"))
+        {
+            LogWrite.Info($"Allready applied , removing UT harmony patches");
+            harmony.UnpatchAll("UndergroundTransport");
+        }
+
         harmony.PatchAll();
-        LogWrite.Info("Harmony patches applied");
+        LogWrite.Info("Underground harmony patches applied");
 
         utValidator = uv;
+        gameLoopEvents = gle;
+        gameLoopEvents.Terminate.AddNonSaveable<ModPatches>(this, terminateEvent);
+    }
+
+    void terminateEvent()
+    {
+        LogWrite.Info("Remove UT Harmony patches");
+        harmony.UnpatchAll("UndergroundTransport");
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(StaticEntityMassPlacer), nameof(StaticEntityMassPlacer.Deactivate))]
     static void placerDeactivate()
     {
-        utValidator.clearConnectionSigns();    }
-
+        utValidator.clearConnectionSigns();    
+    }
 }
 

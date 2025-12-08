@@ -70,7 +70,6 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
         _simLoopEvents = simLoopEvents;
         _productsManager = productsManager;
         productBuffer = new Queueue<ZipBuffProduct>();
-        LogWrite.Info($"New UT {this.Transform.Position.ToString()} {this.Transform.Rotation.ToString()}");
     }
 
     private UTPrototype _proto;
@@ -509,7 +508,6 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
 
     protected override void DeserializeData(BlobReader reader)
     {
-        LogWrite.Info("Deserializing");
         base.DeserializeData(reader);
         int sVersion = reader.ReadInt();
         reader.SetField(this, "_proto", reader.ReadGenericAs<UTPrototype>());
