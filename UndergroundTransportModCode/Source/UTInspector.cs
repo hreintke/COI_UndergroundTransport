@@ -1,4 +1,5 @@
 ﻿using Mafi;
+using Mafi.Collections;
 using Mafi.Core;
 using Mafi.Core.Syncers;
 using Mafi.Localization;
@@ -42,28 +43,24 @@ public class UTInspector : BaseInspector<UndergroundTransport>
         {
             switch (state)
             {
+                default:
+                    this.Status.As(Tr.EntityStatus__Idle, DisplayState.Neutral);
+                    break;
                 case UndergroundTransport.State.None:
                     this.Status.As(Tr.EntityStatus__Idle, DisplayState.Neutral);
                     break;
-                case UndergroundTransport.State.ConnectedIn:
-                    this.Status.As(new LocStrFormatted("ConnectedIn"), DisplayState.Positive);
-                        break;
-                case UndergroundTransport.State.ConnectedOut:
-                    this.Status.As(new LocStrFormatted("ConnectedOut"), DisplayState.Positive);
+                case UndergroundTransport.State.Working:
+                    this.Status.AsWorking();
                     break;
                 case UndergroundTransport.State.Paused:
                     this.Status.AsPaused();
                     break;
-                case UndergroundTransport.State.NotConnected:
-                    this.Status.As(new LocStrFormatted("Not Connected"), DisplayState.Neutral);
-                    break;
-                case UndergroundTransport.State.Connected:
-                    this.Status.As(new LocStrFormatted("Connected"), DisplayState.Warning);
-                    break;
-                case UndergroundTransport.State.ConnectedError:
-                    this.Status.As(new LocStrFormatted("Connected Error"), DisplayState.Warning);
-                        break;
             }
+        }));
+
+        this.Observe<UndergroundTransport.ConnectionState>((Func<UndergroundTransport.ConnectionState>)(() => this.Entity.currentConnectionState)).Do((Action<UndergroundTransport.ConnectionState>)(state =>
+        {
+            connectionStatus.Value(state.ToString().AsLoc());
         }));
 
 
@@ -71,19 +68,20 @@ public class UTInspector : BaseInspector<UndergroundTransport>
         ButtonText connectButton = new ButtonText(new LocStrFormatted("Connect"), () => { if (!this.Entity.isConnected) { this.Entity.findConnectedEntrance(); } });
         ButtonText disconnectButton = new ButtonText(new LocStrFormatted("Disconnect"),() => { this.Entity.disconnect(); });
 
-        ProductBufferUi productBuffer = new ProductBufferUi();
+        BufferWithMultipleProductsUi productBuffer = new BufferWithMultipleProductsUi();
 
-        Panel UTPanel = this.AddPanel();
-        UTPanel.Add(statusLabel);
+        Panel UTPanel = new Panel().MarginLeftRight(10.px());
         Row buttonRow = new Row(5);
 
         buttonRow.Gap(5);
         buttonRow.Margin(4);
         buttonRow.Add(connectButton);
         buttonRow.Add(disconnectButton);
+        buttonRow.Add(connectionStatus);
         
         UTPanel.Add(buttonRow);
         UTPanel.Add(productBuffer);
+
 
         this.HeaderPanel.Body.Add(UTPanel);
 
@@ -92,19 +90,26 @@ public class UTInspector : BaseInspector<UndergroundTransport>
                 {
                     statusLabel.Text(Entity.statusText());
                 }));
-        this.Observe<Quantity>((Func<Quantity>)(() => this.Entity.currentInuse)).Do(q => { productBuffer.Values(Entity.currentInuse, Entity.transportCapacity); });
+
+        this.ObserveIndexable<ProductQuantity>(() => Entity.getBufferLyst())
+            .Observe<Quantity>(() => Entity.transportCapacity).Do((Action<Lyst<ProductQuantity>, Quantity>)((cargo, capacity) =>
+            {
+                productBuffer.SetProducts(cargo, capacity);
+            }));
 
     }
     TextField statusLabel = new TextField();
+    TextField connectionStatus = new TextField().Value("Unkown".AsLoc());
     protected override void OnActivated()
     {
         base.OnActivated();
 
+        connectionStatus.Value(Entity.currentConnectionState.ToString().AsLoc());
         statusLabel.Text(Entity.statusText());
         if (Entity.isConnected)
         {
             HighlightSecondaryEntity(Entity.connectedUndergroundTransport.Value);
-            goalLineRenderer.SetColor(Entity.CurrentState == UndergroundTransport.State.ConnectedError ? Color.red : Color.green);
+            goalLineRenderer.SetColor(Entity.currentConnectionState == UndergroundTransport.ConnectionState.ConnectedError ? Color.red : Color.green);
             goalLineRenderer.ShowLine(Entity.Position3f, Entity.connectedUndergroundTransport.Value.Position3f);
         }
         else

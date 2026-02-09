@@ -41,6 +41,13 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
     {
         None,
         Paused,
+        Idle,
+        Working
+    }
+
+    public enum ConnectionState
+    {
+        Unknown,
         Connected,
         ConnectedIn,
         ConnectedOut,
@@ -102,14 +109,33 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
         } 
     }
 
-    public State CurrentState { get; private set; }
+    public Lyst<ProductQuantity> getBufferLyst()
+    {
+        Lyst<ProductQuantity> t = new Lyst<ProductQuantity>();
+        foreach(var pc in productCount)
+        {
+            t.Add(new ProductQuantity(pc.Key,pc.Value));
+        }
+        return t;
+    }
+
     private State updateState()
     {
         if ((!base.IsEnabled))
         {
             return State.Paused;
         }
+        if ((!(currentConnectionState == ConnectionState.ConnectedIn)) && (!(currentConnectionState == ConnectionState.ConnectedOut))) 
+        {
+            return State.Idle;
+        }
+        return State.Working;
+    }
 
+    public State CurrentState { get; private set; }
+    public ConnectionState currentConnectionState { get; private set; }
+    private ConnectionState updateConnectionState()
+    {
         if (connectedUndergroundTransport.HasValue)
         {
             switch (currentDirection)
@@ -118,15 +144,15 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
                     {
                         if (connectedUndergroundTransport.Value.currentDirection == Direction.Out)
                         {
-                            return State.ConnectedIn;
+                            return ConnectionState.ConnectedIn;
                         }
                         else if (connectedUndergroundTransport.Value.currentDirection == Direction.In)
                         {
-                            return State.ConnectedError;
+                            return ConnectionState.ConnectedError;
                         }
                         else
                         {
-                            return State.Connected;
+                            return ConnectionState.Connected;
                         }
                     }
 
@@ -134,23 +160,23 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
                     {
                         if (connectedUndergroundTransport.Value.currentDirection == Direction.In)
                         {
-                            return State.ConnectedOut;
+                            return ConnectionState.ConnectedOut;
                         }
                         else if (connectedUndergroundTransport.Value.currentDirection == Direction.Out)
                         {
-                            return State.ConnectedError;
+                            return ConnectionState.ConnectedError;
                         }
                         else
                         {
-                            return State.Connected;
+                            return  ConnectionState.Connected;
                         }
                     }
             }
-            return State.Connected;
+            return ConnectionState.Connected;
         }
         else
         {
-            return State.NotConnected;
+            return ConnectionState.NotConnected;
         }
     }
 
@@ -199,8 +225,20 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
 
     public string statusText()
     {
+        Quantity productBufferQuantity = Quantity.Zero;
+        foreach (var pb in productBuffer)
+        {
+            productBufferQuantity += pb.ProductQuantity.Quantity;
+        }
+
+        Quantity pcQuantity = Quantity.Zero;
+        foreach (var pc in productCount)
+        {
+            pcQuantity += pc.Value;
+        }
+
         string c = isConnected ? "Connected Direction " + currentDirection : "Not Connected";
-        string buf = $" maxBuffer {transportCapacity} In use {currentInuse}";
+        string buf = $" maxBuffer {transportCapacity} In use {currentInuse} pbuffer {productBufferQuantity} pCount {pcQuantity}";
         String cap = $" cap = {transportLength} {transportCapacity} {transportDuration}";
         string cp = connectedUndergroundTransport.HasValue ? connectedUndergroundTransport.Value.Transform.Position.ToString() : " ";
 
@@ -214,6 +252,7 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
 
     void IEntityWithSimUpdate.SimUpdate()
     {
+        currentConnectionState = updateConnectionState();
         CurrentState = updateState();
         trySendProducts();
     }
@@ -228,8 +267,8 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
     {
         // Direction.In is controlling the transport
         if (!isConnected
-             || connectedUndergroundTransport.Value.CurrentState != State.ConnectedOut
-             || CurrentState != State.ConnectedIn)
+             || connectedUndergroundTransport.Value.currentConnectionState != UndergroundTransport.ConnectionState.ConnectedOut
+             || currentConnectionState != UndergroundTransport.ConnectionState.ConnectedIn)
         {
             return;
         }
@@ -265,8 +304,8 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
     public Quantity ReceiveAsMuchAsFromPort(ProductQuantity pq, IoPortToken sourcePort)
     {
         if  (!isConnected 
-            || CurrentState != State.ConnectedIn
-            || connectedUndergroundTransport.Value.CurrentState != State.ConnectedOut)
+            || currentConnectionState != ConnectionState.ConnectedIn
+            || connectedUndergroundTransport.Value.currentConnectionState != ConnectionState.ConnectedOut)
         {
             return (pq.Quantity);
         }
@@ -523,6 +562,21 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
         productBuffer = Queueue<ZipBuffProduct>.Deserialize(reader);
         connectedUndergroundTransport = Option<UndergroundTransport>.Deserialize(reader);
         currentDirection = (Direction)reader.ReadInt();
+        reader.RegisterInitAfterLoad<UndergroundTransport>(this, "initSelf", InitPriority.Normal);
+    }
+
+
+
+
+    [InitAfterLoad(InitPriority.Normal)]
+    private void initSelf(int saveVersion, DependencyResolver resolver)
+    {
+        currentInuse = Quantity.Zero;
+        foreach(var pc in productCount)
+        {
+            currentInuse += pc.Value;
+        }
+        updateConnectionState();
     }
 
     static UndergroundTransport()
