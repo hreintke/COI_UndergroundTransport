@@ -1,0 +1,17 @@
+{
+  "id": "UndergroundTransport",
+  "version": "5.1.2",
+  "display_name": "Underground Transport",
+  "description_short": "Adds undergroud transport entities",
+  "description_long": "Adds underground transport for fluid. loose and other",
+  "authors": [ "hreintke" ],
+  "primary_dlls": [ "0Harmony.dll", "UndergroundTransportMod.dll" ],
+  "min_game_version": "0.8.0",
+  "max_verified_game_version": "0.8.0",
+  "mod_dependencies": [],
+  "optional_mod_dependencies": [],
+  "incompatible_mods": [],
+  "non_locking_dll_load": true,
+  "can_add_to_saved_game": true,
+  "can_remove_from_saved_game": true
+}

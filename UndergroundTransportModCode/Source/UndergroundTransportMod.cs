@@ -16,6 +16,13 @@ namespace UndergroundTransportMod
 {
     public sealed class UndergroundTransportMod : IMod
     {
+        ModManifest manifest;
+        ModJsonConfig config;
+        public UndergroundTransportMod(ModManifest modManifest)
+        {
+            LogWrite.Info("UndergroundTransportMod instanciated");
+            manifest = modManifest;
+        }
         public string Name => typeof(UndergroundTransportMod).Assembly.GetName().Name;
 
         public int Version => (typeof(UndergroundTransportMod).Assembly.GetName().Version.Major * 100) +
@@ -26,6 +33,10 @@ namespace UndergroundTransportMod
         public bool IsUiOnly => false;
 
         public Option<IConfig> ModConfig { get; }
+
+        public ModManifest Manifest => manifest;
+
+        public ModJsonConfig JsonConfig => new ModJsonConfig(this);
 
         public void ChangeConfigs(Lyst<IConfig> configs)
         {
@@ -51,6 +62,16 @@ namespace UndergroundTransportMod
         public void EarlyInit(DependencyResolver resolver)
         {
             LogWrite.Info($"EarlyInit");
+        }
+
+        public void MigrateJsonConfig(VersionSlim savedVersion, Dict<string, object> savedValues)
+        {
+            
+        }
+
+        public void Dispose()
+        {
+           
         }
     }
 }

@@ -28,7 +28,7 @@ namespace UndergroundTransportMod
                 .AddLayoutEntityToUnlock(PrototypeIDs.LocalEntities.FlatUndergroundTransportID)
                 .AddLayoutEntityToUnlock(PrototypeIDs.LocalEntities.LooseUndergroundTransportID)
                 .AddLayoutEntityToUnlock(PrototypeIDs.LocalEntities.PipeUndergroundTransportID)
-                .SetGridPosition(registrator.PrototypesDb.GetOrThrow<ResearchNodeProto>(Ids.Research.ConveyorBeltsT2).GridPosition + new Vector2i(12, 0))
+                .SetGridPosition(new Vector2i(60, -1))
                 .AddParents( registrator.PrototypesDb.GetOrThrow<ResearchNodeProto>(Ids.Research.ConveyorBeltsT2))
                 .BuildAndAdd();
         }
