@@ -1,6 +1,6 @@
 {
-  "id": "UndergroundTransport",
-  "version": "5.1.2",
+  "id": "UndergroundTransportMod",
+  "version": "5.1.3",
   "display_name": "Underground Transport",
   "description_short": "Adds undergroud transport entities",
   "description_long": "Adds underground transport for fluid. loose and other",
