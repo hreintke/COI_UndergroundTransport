@@ -180,6 +180,14 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
         }
     }
 
+    public void calulateTransportCapacity()
+    {
+        if (isConnected)
+        {
+            transportCapacity = (10 * transportLength).Quantity();
+        }
+    }
+
     public void connect(UndergroundTransport ut)
     {
         if (isConnected)
@@ -190,7 +198,7 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
                             + (this.Transform.Position.Z - ut.Transform.Position.Z).Abs();
 
         transportDuration = new Duration((int)((float)transportLength / 0.4f));
-        transportCapacity = (4 * transportLength).Quantity();
+        transportCapacity = (10 * transportLength).Quantity();
 
         connectedUndergroundTransport = ut;
     }
@@ -253,8 +261,10 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
     void IEntityWithSimUpdate.SimUpdate()
     {
         currentConnectionState = updateConnectionState();
-        CurrentState = updateState();
-        trySendProducts();
+        if ((CurrentState = updateState()) == State.Working)
+        {
+            trySendProducts();
+        }
     }
 
     public Quantity sendToOuputPort(ProductQuantity quantity)
@@ -303,7 +313,8 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
 
     public Quantity ReceiveAsMuchAsFromPort(ProductQuantity pq, IoPortToken sourcePort)
     {
-        if  (!isConnected 
+        if  (!(CurrentState == State.Working)
+            || !isConnected 
             || currentConnectionState != ConnectionState.ConnectedIn
             || connectedUndergroundTransport.Value.currentConnectionState != ConnectionState.ConnectedOut)
         {
@@ -577,6 +588,7 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
             currentInuse += pc.Value;
         }
         updateConnectionState();
+        calulateTransportCapacity();
     }
 
     static UndergroundTransport()
