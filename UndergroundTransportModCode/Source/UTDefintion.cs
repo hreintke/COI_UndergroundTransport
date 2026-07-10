@@ -23,7 +23,6 @@ using Mafi.Collections;
 using Mafi.Core.Factory.Zippers;
 using Mafi.Core.Products;
 using static Mafi.Base.Assets.Core;
-using System.Diagnostics.Eventing.Reader;
 using Mafi.Core.Buildings.Farms;
 using Mafi.Core.Buildings.Mine;
 using System.Runtime.CompilerServices;
@@ -277,6 +276,7 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
     {
         // Direction.In is controlling the transport
         if (!isConnected
+             || connectedUndergroundTransport.Value.CurrentState != State.Working
              || connectedUndergroundTransport.Value.currentConnectionState != UndergroundTransport.ConnectionState.ConnectedOut
              || currentConnectionState != UndergroundTransport.ConnectionState.ConnectedIn)
         {
