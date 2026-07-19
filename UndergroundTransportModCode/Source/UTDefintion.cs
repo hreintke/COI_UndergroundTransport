@@ -511,7 +511,7 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
         while (productBuffer.IsNotEmpty)
         {
             ZipBuffProduct zp = productBuffer.Dequeue();
-            _productsManager.ClearProduct(zp.ProductQuantity);
+            _productsManager.ProductCleared(zp.ProductQuantity);
         }
     }
 
