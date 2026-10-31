@@ -1,9 +1,12 @@
 ﻿using Mafi;
 using Mafi.Collections;
 using Mafi.Core;
+using Mafi.Core.Factory.Transports;
 using Mafi.Core.Syncers;
+using Mafi.Core.Terrain;
 using Mafi.Localization;
 using Mafi.Unity;
+using Mafi.Unity.Terrain;
 using Mafi.Unity.Ui;
 using Mafi.Unity.Ui.Inspectors;
 using Mafi.Unity.Ui.Library;
@@ -25,14 +28,23 @@ public class UTInspector : BaseInspector<UndergroundTransport>
 
     private LinesFactory linesFactory;
     private LineOverlayRendererHelper goalLineRenderer;
+    private readonly TerrainAreaOutlineRenderer terrainOutlineRenderer;
+    public Lyst<TerrainAreaOutlineRenderer> outlineLyst = new();
+    private readonly DependencyResolver resolver;
     private UiContext uiContext;
+    
 
     public UTInspector(UiContext uic,
+                       NewInstanceOf<TerrainAreaOutlineRenderer> tr,
+                       DependencyResolver res,
                        LinesFactory lf) : base(uic)
 
     {
         uiContext = uic;
         linesFactory = lf;
+        terrainOutlineRenderer = tr.Instance;
+        terrainOutlineRenderer.Hide();
+        resolver = res;
 
         goalLineRenderer = new LineOverlayRendererHelper(linesFactory);
         goalLineRenderer.SetWidth(0.5f);
@@ -67,6 +79,10 @@ public class UTInspector : BaseInspector<UndergroundTransport>
 
         ButtonText connectButton = new ButtonText(new LocStrFormatted("Connect"), () => { if (!this.Entity.isConnected) { this.Entity.findConnectedEntrance(); } });
         ButtonText disconnectButton = new ButtonText(new LocStrFormatted("Disconnect"),() => { this.Entity.disconnect(); });
+        ButtonText switchButton = new ButtonText(new LocStrFormatted("switch"), () => { this.Entity.updatePortDirections(); });
+        ButtonIcon bi = new ButtonIcon("Assets/Unity/UserInterface/General/Rotate128.png")
+            .Medium<ButtonIcon>()
+            .OnClick<ButtonIcon>((Action)(() => { this.Entity.updatePortDirections(); }));
 
         BufferWithMultipleProductsUi productBuffer = new BufferWithMultipleProductsUi();
 
@@ -77,7 +93,11 @@ public class UTInspector : BaseInspector<UndergroundTransport>
         buttonRow.Margin(4);
         buttonRow.Add(connectButton);
         buttonRow.Add(disconnectButton);
+       // buttonRow.Add(switchButton);
+        //buttonRow.Add(bi);
         buttonRow.Add(connectionStatus);
+
+//        buttonRow.Add(statusLabel);
         
         UTPanel.Add(buttonRow);
         UTPanel.Add(productBuffer);
@@ -119,12 +139,37 @@ public class UTInspector : BaseInspector<UndergroundTransport>
             Tile3f maxOffset3f = new Tile3f(maxOffset.X, maxOffset.Y, maxOffset.Z);
             goalLineRenderer.ShowLine(Entity.Position3f, maxOffset3f);
         }
+        
+    //    terrainOutlineRenderer.SetArea(new RectangleTerrainArea2i(Entity.CenterTile.Tile2i, RelTile2i.One), Color.blue);
+   //     terrainOutlineRenderer.SetArea(new RectangleTerrainArea2i(Entity.getRenderTile(), RelTile2i.One), Color.blue);
+     //   terrainOutlineRenderer.Show();
+        outlineLyst = new();
+        //LogWrite.Info($"SA Cnt = {Entity.ht.Count}");
+#if false
+        foreach (var x in Entity.ht)
+        {
+            var n = resolver.Instantiate<TerrainAreaOutlineRenderer>();
+            n.SetArea(new RectangleTerrainArea2i(x.Item1, RelTile2i.One), x.Item2);
+            n.Show();
+            outlineLyst.Add(n);
+          //  LogWrite.Info($"SA {x}");
+
+
+        }
+#endif
     }
 
     protected override void OnDeactivated()
     {
         base.OnDeactivated();
         goalLineRenderer.HideLine();
+        terrainOutlineRenderer.Hide();
+        foreach(var t  in outlineLyst)
+        {
+            t.Hide();
+        }
+        outlineLyst.Clear();
+     //   LogWrite.Info("Deactivate");
     }
 
 

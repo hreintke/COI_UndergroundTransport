@@ -3,7 +3,22 @@ guid: 037d29d447b818d49825ad83c6e558bf
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DefaultEntranceMat
+    second: {fileID: 2100000, guid: 78c5ad634aab9d8499bf003afda2e4cd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: FlatConveyor
+    second: {fileID: 2100000, guid: 34005ca8a725fa64ea12492741def834, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: MetalOutside
+    second: {fileID: 2100000, guid: ca33f56908b38394ea8c6631875887f7, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -16,8 +31,6 @@ ModelImporter:
     optimizeGameObjects: 0
     removeConstantScaleCurves: 0
     motionNodeName: 
-    rigImportErrors: 
-    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 

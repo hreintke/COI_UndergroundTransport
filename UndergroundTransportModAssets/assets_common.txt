@@ -4,6 +4,10 @@ icons_d4f9
     Assets/UndergroundTransportMod/Icons/PipeIcon.png
     Assets/UndergroundTransportMod/Icons/PipeIcon1.png
 
+materials_b7b0
+    Assets/UndergroundTransportMod/Materials/Loose 2.mat
+    Assets/UndergroundTransportMod/Materials/Loose.mat
+
 flatentrance_a2f0
     Assets/UndergroundTransportMod/Prefabs/FlatEntrance.prefab
 
@@ -27,6 +31,15 @@ looseentrance38_498a
 
 looseentrance38collider_2676
     Assets/UndergroundTransportMod/Prefabs/LooseEntrance38Collider.prefab
+
+newentrance_51a8
+    Assets/UndergroundTransportMod/Prefabs/NewEntrance.prefab
+
+newloose_930c
+    Assets/UndergroundTransportMod/Prefabs/NewLoose.prefab
+
+pipecurve_1d68
+    Assets/UndergroundTransportMod/Prefabs/PipeCurve.prefab
 
 pipeentrance_f23c
     Assets/UndergroundTransportMod/Prefabs/PipeEntrance.prefab

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Mafi.Core.Terrain.Designation.DesignationPenaltyStamp;
 using static RTG.Object2ObjectSnap;
 
 namespace UndergroundTransportMod
@@ -22,6 +23,7 @@ namespace UndergroundTransportMod
                 "Loose Underground Entry",
                 "A building to start/end a loose underground Transport",
                 "Assets/UndergroundTransportMod/Prefabs/LooseEntrance38Collider.prefab",
+                //"Assets/UndergroundTransportMod/Prefabs/NewLoose.prefab",
                 "Assets/UndergroundTransportMod/Icons/LooseIcon.png",
                 70,
                 30,
@@ -34,6 +36,7 @@ namespace UndergroundTransportMod
                 "Flat Underground Entry",
                 "A building to start/end a flat underground Transport",
                 "Assets/UndergroundTransportMod/Prefabs/FlatEntrance38Collider.prefab",
+                //"Assets/UndergroundTransportMod/Prefabs/NewLoose.prefab",
                 "Assets/UndergroundTransportMod/Icons/FlatIcon.png",
                 70,
                 30,
@@ -46,6 +49,7 @@ namespace UndergroundTransportMod
                 "Pipe Underground Entry",
                 "A building to start/end a pipe underground Transport",
                 "Assets/UndergroundTransportMod/Prefabs/PipeEntrance38Collider.prefab",
+                //"Assets/UndergroundTransportMod/Prefabs/NewLoose.prefab",
                 "Assets/UndergroundTransportMod/Icons/PipeIcon1.png",
                 70,
                 30,
@@ -90,7 +94,8 @@ namespace UndergroundTransportMod
                     }
             }
 
-            String layout = "   [1][1]A" + x + "+";
+//            String layout = "   [1][1]A" + x + ">";
+            string layout = "   [1][1]A" + x + "+";
             EntityLayout el = registrator.LayoutParser.ParseLayoutOrThrow(layout);
             EntityCosts ec = ecTpl.MapToEntityCosts(registrator);
             LayoutEntityProto.Gfx lg =

@@ -1,33 +1,41 @@
-﻿using Mafi.Core;
-using Mafi;
+﻿using Mafi;
+using Mafi.Collections;
+using Mafi.Collections.ImmutableCollections;
+using Mafi.Core;
+using Mafi.Core.Bridges;
+using Mafi.Core.Buildings.Farms;
+using Mafi.Core.Buildings.Mine;
 using Mafi.Core.Buildings.Towers;
 using Mafi.Core.Entities;
 using Mafi.Core.Entities.Static.Layout;
+using Mafi.Core.Factory.Transports;
+using Mafi.Core.Factory.Zippers;
+using Mafi.Core.Input;
 using Mafi.Core.Maintenance;
 using Mafi.Core.Population;
 using Mafi.Core.Ports;
 using Mafi.Core.Ports.Io;
+using Mafi.Core.Products;
+using Mafi.Core.Prototypes;
+using Mafi.Core.Simulation;
+using Mafi.Core.Terrain;
+using Mafi.Core.Terrain.Designation;
+using Mafi.Core.Trains;
 using Mafi.Serialization;
+using Mafi.Unity.Ui.Statistics;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using static Mafi.Base.Assets.Base.Tutorials;
-using Mafi.Core.Input;
-using Mafi.Core.Terrain.Designation;
-using Mafi.Core.Terrain;
+
 using static Mafi.Base.Assets.Base.Buildings;
-using Mafi.Core.Simulation;
-using Mafi.Collections;
-using Mafi.Core.Factory.Zippers;
-using Mafi.Core.Products;
+using static Mafi.Base.Assets.Base.Tutorials;
 using static Mafi.Base.Assets.Core;
-using Mafi.Core.Buildings.Farms;
-using Mafi.Core.Buildings.Mine;
-using System.Runtime.CompilerServices;
-using Mafi.Core.Factory.Transports;
-using UnityEngine.UIElements;
 
 namespace UndergroundTransportMod;
 
@@ -75,9 +83,9 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
         _terrainOccupancyManager = terrainOccupancyManager;
         _simLoopEvents = simLoopEvents;
         _productsManager = productsManager;
-        productBuffer = new Queueue<ZipBuffProduct>();
+        productBuffer = new Queueue<BuffProduct>();
+        ht.Add((CenterTile.Tile2i,UnityEngine.Color.blue));
     }
-
     private UTPrototype _proto;
     private static EntitiesManager _entitiesManager;
     private TerrainManager _terrainManager;
@@ -90,11 +98,15 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
     public Duration transportDuration;
     public Quantity currentInuse;
 
+    private Tile3i portPostion => Ports[0].Position;
+
     public Dict<ProductProto, Quantity> productCount = new Dict<ProductProto, Quantity>();
 
-    private Queueue<ZipBuffProduct> productBuffer = new Queueue<ZipBuffProduct>();
+    private Queueue<BuffProduct> productBuffer = new Queueue<BuffProduct>();
 
     public Option<UndergroundTransport> connectedUndergroundTransport = new Option<UndergroundTransport>();
+
+    public Lyst<(Tile2i,UnityEngine.Color)> ht = new();
 
     public bool isConnected => connectedUndergroundTransport.HasValue;
 
@@ -117,6 +129,24 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
         }
         return t;
     }
+
+    public void updatePortDirections()
+    {
+        ImmutableArrayBuilder<IoPort> immutableArrayBuilder = new ImmutableArrayBuilder<IoPort>(this.Ports.Length);
+        for (int index = 0; index < this.Ports.Length; ++index)
+        {
+            IoPort port = this.Ports[index];
+            IoPort ioPort = new IoPort(this.Context.PortIdFactory.GetNextId(), (IEntityWithPorts)this, new PortSpec(port.Spec.Name, 
+                port.Spec.Type == IoPortType.Output ? IoPortType.Input : IoPortType.Output, port.Spec.Shape, port.Spec.CanOnlyConnectToTransports), port.Position, port.Direction, (int)port.PortIndex);
+            this.Context.IoPortsManager.DisconnectAndRemove(port);
+            immutableArrayBuilder[index] = ioPort;
+        }
+        this.Ports = immutableArrayBuilder.GetImmutableArrayAndClear();
+        foreach (IoPort port in this.Ports)
+            this.Context.IoPortsManager.AddPortAndTryConnect(port);
+    }
+
+
 
     private State updateState()
     {
@@ -251,7 +281,9 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
 
         string r = Transform.IsReflected ? "Flipped" : "Normal";
 
-        return Transform.Position.ToString() + " " + Transform.Transform(Rotation90.Deg0) + " "  + c + buf;
+        // return Transform.Position.ToString() + " " + Transform.Transform(Rotation90.Deg0) + " " +r + " " + isBridgeTransport().HasValue + getOffsetTile(2).ToString() ;
+      
+        return $"{groundTile} {Transform.Transform(Rotation90.Deg0)} {Ports[0].Position}"; 
     }
 
     public Direction currentDirection = Direction.Unspecified;
@@ -287,7 +319,7 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
         bool lastSend = true;
         while (productBuffer.IsNotEmpty && !connectedFull && lastSend)
         {
-            ZipBuffProduct zp = productBuffer.Peek();
+            BuffProduct zp = productBuffer.Peek();
             if (_simLoopEvents.CurrentStep - zp.EnqueuedAtStep >= transportDuration)
             {
                 productBuffer.Dequeue();
@@ -300,7 +332,7 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
                 if (rq != Quantity.Zero)
                 {
                     connectedFull = true;
-                    productBuffer.EnqueueFirst(new ZipBuffProduct(new ProductQuantity(zp.ProductQuantity.Product, rq), zp.EnqueuedAtStep));
+                    productBuffer.EnqueueFirst(new BuffProduct(new ProductQuantity(zp.ProductQuantity.Product, rq), zp.EnqueuedAtStep));
                 }
                 
             }
@@ -336,7 +368,7 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
             {
                 productCount.AddQuantity(pq.Product, receivedQuantity);
                 currentInuse = currentInuse + receivedQuantity;
-                productBuffer.Enqueue(new ZipBuffProduct(new ProductQuantity(pq.Product, receivedQuantity), _simLoopEvents.CurrentStep));
+                productBuffer.Enqueue(new BuffProduct(new ProductQuantity(pq.Product, receivedQuantity), _simLoopEvents.CurrentStep));
             }
             return (pq.Quantity - receivedQuantity);
         }
@@ -376,7 +408,7 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
 
         TileTransform actualTileTransform = new TileTransform(Transform.Position, Transform.Transform(Rotation90.Deg0)); // also include Flipped status
 
-        if ((actualTileTransform.Position.Z - position.Z) > Prototype.maxHeightDifference)
+        if ((actualTileTransform.Position.Z - position.Z) >= Prototype.maxHeightDifference)
         {
             return false;
         }
@@ -475,16 +507,202 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
         return offsetTile;
     }
 
-    public bool findConnectedEntrance()
+    public Option<BridgeSegment> isBridgeTransport()
     {
- //       LogWrite.Info($"__ find connected {this.Transform.Position.Tile2i.ToString()} {this.Transform.Transform(Rotation90.Deg0).ToString()}");
-        TileTransform actualTileTransform = new TileTransform(Transform.Position, Transform.Transform(Rotation90.Deg0)); // also include Flipped status
+        //LogWrite.Info($"Check bridge {Transform.Position} {portPostion} {Transform.Rotation} {Transform.IsReflected} {Transform.Transform90RotFlip.Rotation90}");
+        BridgeSegment bridgeSegment;
+        if (_entitiesManager.TryGetEntity<BridgeSegment>(_terrainOccupancyManager.GetLowestOccupyingEntity(_terrainManager.GetTileIndex(getOffsetTile(2).Tile2i)), out bridgeSegment))
+            {
+            LogWrite.Info($"iBT {getOffsetTile(2).Tile2i} {Transform.IsReflected} {Transform.Transform(Rotation90.Deg0)} {Transform.Rotation} {bridgeSegment.Transform.IsReflected} {bridgeSegment.Transform.Transform(Rotation90.Deg0)} {bridgeSegment.Transform.Rotation})");
+        }
+        else
+        {
+            LogWrite.Info($"iBT No BE {getOffsetTile(2).Tile2i} {groundTile} {Transform.IsReflected} {Transform.Transform(Rotation90.Deg0)} {Transform.Rotation}");
+        }
+        
+        if (_entitiesManager.TryGetEntity<BridgeSegment>(_terrainOccupancyManager.GetLowestOccupyingEntity(_terrainManager.GetTileIndex(getOffsetTile(2).Tile2i)), out bridgeSegment)
+        && (bridgeSegment.Prototype.IsEntrance)
+        && ((bridgeSegment.Transform.Position.Z) == this.Transform.Position.Z)
+//        && (Transform.IsReflected ? 
+//                this.Transform.Transform90RotFlip.Rotation90 == bridgeSegment.Transform.Transform90RotFlip.Rotation90
+//                : this.Transform.Transform90RotFlip.Rotation90.Rotated180 == bridgeSegment.Transform.Transform90RotFlip.Rotation90)
+        && this.Transform.Transform(Rotation90.Deg0).Rotated180 == bridgeSegment.Transform.Transform(Rotation90.Deg0)
+        )
+        {
+            return bridgeSegment;
+        }
+        else
+        {
+            return Option.None;
+        }
+    }
+
+    public Tile2i[] getTransportTiles(BridgeSegment bs)
+    {
+        Tile2i mid = getStartTile(bs);
+        int z = 4;
+        int width = 0;
+        Rotation90 rotation = bs.Transform.Transform(Rotation90.Deg0);
+        bool includeMidPoint;
+
+        if (bs.Prototype.BridgeProto.Id.ToString() == "Bridge_CableStayed")
+        {
+            width = 12;
+            includeMidPoint = true;
+        }
+        else if (bs.Prototype.BridgeProto.Id.ToString() == "Bridge_Truss2Lane")
+        {
+            width = 6;
+            includeMidPoint = false;
+        }
+        else
+        {
+            LogWrite.Info($"Unknown BridgeProto {bs.Prototype.BridgeProto.Id.ToString()}");
+            return new Tile2i[0];
+        }
+        LogWrite.Info($"GT {bs.Prototype.Id} {bs.GetType().Name} {bs.Prototype.BridgeProto.Id} {bs.Prototype.BridgeProto.SlimId}");
+        int midX = mid.X;
+        int midY = mid.Y;
+        int lowerHalf = width / 2;
+        int upperHalf = width - 1 - lowerHalf;
+
+        int farMidX = midX - (rotation.Dx * z);// + (rotation == Rotation90.Deg0 ? 1 : 0);// + rotation.Dx;
+        int farMidY = midY - (rotation.Dy * z);//  + (rotation == Rotation90.Deg90 ? 1 : 0);// + rotation.Dy;
+
+        LogWrite.Info($"GFE Dx {rotation.Dx} Dy {rotation.Dy}");
+
+        // "width axis" step direction (perpendicular to extrusion direction)
+        var (wdx, wdy) = rotation.Is90Or270Deg ? (1, 0) : (0, 1) ;
+
+        var points = new Lyst<Tile2i>();
+
+        // far endpoint 1 (lower side)
+        points.Add(new Tile2i(farMidX - lowerHalf * wdx, farMidY - lowerHalf * wdy));
+        //points.Add((farMidX, farMidY));
+    
+        if (includeMidPoint)
+        {
+            // input midpoint, already projected by z
+            points.Add(new Tile2i(farMidX, farMidY));
+
+            // if width is even, add the other cell adjacent to true center
+            if (width % 2 == 0)
+            {
+                points.Add(new Tile2i(farMidX - wdx, farMidY - wdy));
+            }
+        }
+
+        // far endpoint 2 (upper side)
+        points.Add(new Tile2i(farMidX + upperHalf * wdx, farMidY + upperHalf * wdy));
+        return points.ToArray();
+    }
+
+    Tile2i getStartTile(BridgeSegment bs)
+    {
+        var addrel = new RelTile2i(0, 0);
+        if (bs.Transform.Transform(Rotation90.Deg0) == Rotation90.Deg270)
+        {
+            addrel = new RelTile2i(0, -1);
+        }
+        if (bs.Transform.Transform(Rotation90.Deg0) == Rotation90.Deg180)
+        {
+            addrel = new RelTile2i(-1, 0);
+        }
+        return bs.GetStartPosition().Tile2i + addrel;
+    }
+
+    public Tile2i portTile => Ports[0].Position.Tile2i;
+
+    public Tile2i groundTile => (portTile != CenterTile.Tile2i) ? CenterTile.Tile2i : CenterTile.Tile2i - new RelTile2i(Transform.Transform(Rotation90.Deg0).Dx, Transform.Transform(Rotation90.Deg0).Dy);
+
+
+    public bool findConnectedEntrance()
+
+    {
+        ht.Add((CenterTile.Tile2i, UnityEngine.Color.blue));
+        ht.Add((groundTile, UnityEngine.Color.red));
+
+        // First check on Bridge connection.
+        Option<BridgeSegment> bridgeSegment = isBridgeTransport();
+        if (bridgeSegment.HasValue)
+        {
+            LogWrite.Info($"BridgeSegment {bridgeSegment.Value.Transform.Transform(Rotation90.Deg0)}");
+            Tile2i[] thisTransportTiles = getTransportTiles(bridgeSegment.Value);
+            bool c = true;
+            int btIndex = 0;
+            bool onTile = false;
+
+            foreach (var r in thisTransportTiles)
+            {
+                if (groundTile == r)
+                {
+                    onTile = true;
+                    break;
+                }
+                btIndex++;
+                LogWrite.Info($"TT {r}");
+                ht.Add((r, c ? UnityEngine.Color.white : UnityEngine.Color.pink));
+                c = false;
+                //break;
+            }
+            if (!onTile)
+            {
+                LogWrite.Info($"UT not on tile");
+                return false;
+            }
+            // Need to check whether the transport is on a TransportTile
+            Tile2i[] otherTransportTiles ;
+            foreach (var bs in bridgeSegment.Value.GetAllConnectedSegments())
+            {
+                if ((!bs.Prototype.IsEntrance) || bs == bridgeSegment.Value)
+                {
+                    continue;
+                }
+                LogWrite.Info($"Other Bidge segment {bs.Transform.Transform(Rotation90.Deg0)}");
+                otherTransportTiles = getTransportTiles(bs);
+                c = true;
+                foreach (var r in otherTransportTiles)
+                {
+                    LogWrite.Info($"OT {r}");
+                    ht.Add((r, c ?  UnityEngine.Color.blue : UnityEngine.Color.green ));
+                    c = false;
+                    //break;
+                }
+                Tile2iIndex checkBridgePosition = _terrainManager.GetTileIndex
+                    (((bs.Transform.Transform(Rotation90.Deg0) ==  bridgeSegment.Value.Transform.Transform(Rotation90.Deg0).RotatedPlus90) 
+                        || (bs.Transform.Transform(Rotation90.Deg0) == bridgeSegment.Value.Transform.Transform(Rotation90.Deg0)))
+                    ? otherTransportTiles[otherTransportTiles.Length -1 - btIndex] : otherTransportTiles[btIndex]);
+
+                var cp = ((bs.Transform.Transform(Rotation90.Deg0) == bridgeSegment.Value.Transform.Transform(Rotation90.Deg0).RotatedPlus90) ? otherTransportTiles[otherTransportTiles.Length - 1 - btIndex] : otherTransportTiles[btIndex]);
+
+
+                LogWrite.Info($"Check {cp}");
+                EntityId entityId = _terrainOccupancyManager.GetLowestOccupyingEntity(checkBridgePosition);
+                UndergroundTransport utc;
+
+                if ((entityId == EntityId.Invalid) || !(_entitiesManager.TryGetEntity<UndergroundTransport>(entityId, out utc)))
+                {
+                    return false;
+                }
+                if (utc.isConnected || (utc.Prototype.transportType != Prototype.transportType))
+                {
+                    return false;
+                }
+
+                LogWrite.Info($"Connecting");
+                utc.connect(this);
+                this.connect(utc);
+                 return true;
+            }
+            return false;
+        }
 
         Tile3i checkPosition = new Tile3i();
 
         for (int i = 2; i <= _proto.maxDistance; i++)
         {
             checkPosition = getOffsetTile(i);
+
             if (checkPossibleConnect(checkPosition, true))
             {
                 return true;
@@ -510,7 +728,7 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
         }
         while (productBuffer.IsNotEmpty)
         {
-            ZipBuffProduct zp = productBuffer.Dequeue();
+            BuffProduct zp = productBuffer.Dequeue();
             _productsManager.ProductCleared(zp.ProductQuantity);
         }
     }
@@ -542,7 +760,7 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
         Duration.Serialize(transportDuration, writer);
         Quantity.Serialize(transportCapacity, writer);
         Dict<ProductProto, Quantity>.Serialize(productCount, writer);
-        Queueue<ZipBuffProduct>.Serialize(productBuffer, writer);
+        Queueue<BuffProduct>.Serialize(productBuffer, writer);
         Option<UndergroundTransport>.Serialize(connectedUndergroundTransport, writer);
         writer.WriteInt((int)currentDirection);
     }
@@ -570,7 +788,17 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
         transportDuration = Duration.Deserialize(reader);
         transportCapacity = Quantity.Deserialize(reader);
         productCount =  Dict<ProductProto, Quantity>.Deserialize(reader);
-        productBuffer = Queueue<ZipBuffProduct>.Deserialize(reader);
+        if (reader.LoadedSaveVersion < 334)
+        {
+            var pb = Queueue<ZipBuffProduct>.Deserialize(reader);
+            productBuffer = new Queueue<BuffProduct>();
+            productCount = new Dict<ProductProto, Quantity>();
+        }
+        else
+        {
+            productBuffer = Queueue<BuffProduct>.Deserialize(reader);
+        }
+        
         connectedUndergroundTransport = Option<UndergroundTransport>.Deserialize(reader);
         currentDirection = (Direction)reader.ReadInt();
         reader.RegisterInitAfterLoad<UndergroundTransport>(this, "initSelf", InitPriority.Normal);
@@ -589,7 +817,9 @@ public class UndergroundTransport : LayoutEntity, IEntityWithSimUpdate, IEntityW
         }
         updateConnectionState();
         calulateTransportCapacity();
-    }
+        ht = new();
+        ht.Add((CenterTile.Tile2i, UnityEngine.Color.blue));
+      }
 
     static UndergroundTransport()
     {

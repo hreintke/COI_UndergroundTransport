@@ -1,0 +1,26 @@
+ManifestFileVersion: 0
+UnityVersion: 6000.0.50f1
+CRC: 578870297
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 38c4a32f37dfffe982821814844d6ed7
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 8ed81b296f435bff7379a355cd1d66d9
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 60edfee4173e7e6c864a3b67c6c656ea
+HashAppended: 0
+ClassTypes:
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/UndergroundTransportMod/Materials/Loose.mat
+- Assets/UndergroundTransportMod/Materials/Loose 2.mat
+Dependencies: []
